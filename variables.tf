@@ -1,3 +1,9 @@
+variable "access_key" {
+     default = "xxxxxx"
+}
+variable "secret_key" {
+     default = "xxxxxxxx"
+}
 variable "region" {
      default = "us-east-1"
 }
