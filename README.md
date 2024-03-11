@@ -53,7 +53,24 @@ In summary, DynamoDB is required in Terraform backend configurations when you wa
 
 3. We have defined providers.tf as shown below:
 
-`[text](providers.tf)`
+```
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+# Configure the AWS Provider
+provider "aws" {
+  region = "us-east-1"
+  access_key = var.access_key 
+  secret_key = var.secret_key
+}
+```
+
 
 4. Ensure you have define the AWS access key and secret key in the variables.tf file as shown below:
 
