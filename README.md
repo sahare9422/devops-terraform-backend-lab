@@ -74,15 +74,63 @@ provider "aws" {
 
 4. Ensure you have define the AWS access key and secret key in the variables.tf file as shown below:
 
-`[text](variables.tf)`
+```
+variable "access_key" {
+     default = "xxxxxx"
+}
+variable "secret_key" {
+     default = "xxxxxxxx"
+}
+variable "region" {
+     default = "us-east-1"
+}
+variable "bucket_name" {
+     default = "tf-bucket-batch759"
+     type    = string
+}
+variable "table_name" {
+     default = "tf-lock-table"
+     type    = string
+}
+```
 
 Replace the mask values witha actual access and secret key. Note: Dont commit this config back to your github repo as active access and secret key should not be commited to remote github repos
 
 Also define your unique S3 bucket name and DynamoDB table name
 
-5. After this you can run following commands so that all the resources defined in main.tf file be provisioned.
+5. After this you can run terraform commands(init, plan and apply) so that all the resources defined in main.tf file be provisioned.
 
-`[text](main.tf)`
+```
+#-----------------------------------------
+# s3.tf
+#-----------------------------------------
+resource "aws_s3_bucket" "state_bucket" {
+  bucket = var.bucket_name
+}
+
+resource "aws_s3_bucket_public_access_block" "deployment_bucket_access" {
+  bucket = aws_s3_bucket.state_bucket.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+#-----------------------------------------
+# dynamodb.tf
+#-----------------------------------------
+resource "aws_dynamodb_table" "terraform_locks" {
+  name         = var.table_name
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "LockID"
+  
+
+  attribute {
+    name = "LockID"
+    type = "S"
+  }
+}
+```
 
 `terraform init`
 
