@@ -1,4 +1,4 @@
-# Terraform Backend : Explained
+# Terraform Backend : Explained With Hands On Lab
 
 ## What is Terraform Backend
 
@@ -138,36 +138,57 @@ resource "aws_dynamodb_table" "terraform_locks" {
 
 `terraform apply`
 
+## Terraform Backend Use Case
 
+### Lets Use the Terraform Backend in the actual Code to Set up a Network Stack (VPC and its related components like subnet, internet gateway, route table, NACL, SG etc )
 
+1. Move to the VPC setup folder
 
+`cd vpc-setup`
 
- Follow these steps to create an S3 bucket:
+2. Define the backend.tf file as shown below
 
-Log in to the AWS Management Console.
-Navigate to the S3 service.
-Click on "Create bucket".
-Choose a unique bucket name, select a region, and configure any additional settings as needed. Ensure that versioning is enabled for the bucket (recommended for Terraform).
-Create the bucket.
-Set up AWS credentials: Terraform needs AWS credentials to interact with AWS services. You can set up credentials using AWS Access Key ID and Secret Access Key.
-
-Create an IAM user with the necessary permissions (usually AmazonS3FullAccess).
-Obtain the Access Key ID and Secret Access Key for this IAM user.
-Configure Terraform backend: Now that you have an S3 bucket and AWS credentials, you can configure Terraform to use this bucket as the backend. Add the following configuration to your Terraform configuration file (main.tf or any other .tf file):
-
-hcl
-Copy code
+```
 terraform {
   backend "s3" {
-    bucket         = "your-bucket-name"
-    key            = "terraform.tfstate"
-    region         = "your-aws-region"
-    access_key     = "your-access-key"
-    secret_key     = "your-secret-key"
+    bucket         = "tf-bucket-batch759"
+    key            = "global/s3/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "tf-lock-table"
+    encrypt        = true
   }
 }
-Replace "your-bucket-name" with the name of the S3 bucket you created, "your-aws-region" with the AWS region where the bucket is located, and "your-access-key" and "your-secret-key" with the AWS Access Key ID and Secret Access Key you obtained earlier.
+```
 
-Initialize Terraform: After configuring the backend, run terraform init in your Terraform project directory. This initializes Terraform and configures it to use the specified backend.
+Ensure that you are using the same bucket name and dynamodb table that you had created in the pre steps earlier. Also define the key as path where you want to store your terraform state file
 
-With these steps completed, Terraform will store its state file in the specified S3 bucket, allowing for remote state management and collaboration among team members working on the same infrastructure.
+3. Ensure you have define you main  terraform config code files like provider.tf and  variables.tf files
+
+4. We have written the vpc.tf code which is going to provision 8 resources (vpc, subnet, internet gateway, route table, route entry, route_table_association NACL and SG)
+
+5. Execute the below commands to provison the resources as mentioned in the code
+
+`terraform init`
+
+`terraform plan`
+
+`terraform apply`
+
+6. You can check in your AWS account that terrafor state file is generated in the S3 bucket.
+
+terraform state file created as shown in image below:
+
+![alt text](s3-state.png)
+
+The sample content in the state file as shown in image below:
+
+![alt text](sample-content.png)
+
+7. Check the state locking by running the terraform apply command at the same time from 2 terminals to replicate the locking message for one of the execution.
+
+![alt text](terraform-lock.png)
+
+
+The lock is managed in teh dynamodb table and released once the running terrafom apply for the first execution is completed.
+
+## Happy Learning!
