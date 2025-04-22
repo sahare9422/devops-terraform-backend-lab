@@ -1,14 +1,14 @@
 variable "access_key" {
-     default = "xxxxxx"
+     default = "xxxxxxx"
 }
 variable "secret_key" {
-     default = "xxxxxxxx"
+     default = "xxxxxxxxxx"
 }
 variable "region" {
-     default = "us-east-1"
+     default = "ap-south-1"
 }
 variable "bucket_name" {
-     default = "tf-bucket-batch759"
+     default = "tf-bucket-palash9422"
      type    = string
 }
 variable "table_name" {
